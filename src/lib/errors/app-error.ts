@@ -82,9 +82,31 @@ export class NotFoundError extends AppError {
  * Conflict error for state conflicts (e.g., duplicate resource).
  */
 export class ConflictError extends AppError {
-  constructor(message: string = 'Resource conflict', context?: Record<string, unknown>) {
-    super(message, 'CONFLICT_ERROR', 409, context);
+  constructor(
+    message: string = 'Resource conflict',
+    codeOrContext?: string | Record<string, unknown>,
+    context?: Record<string, unknown>,
+  ) {
+    const code = typeof codeOrContext === 'string' ? codeOrContext : 'CONFLICT_ERROR';
+    const details = typeof codeOrContext === 'string' ? context : codeOrContext;
+    super(message, code, 409, details);
     this.name = 'ConflictError';
+  }
+}
+
+/**
+ * Gone error for expired or no-longer-available resources.
+ */
+export class GoneError extends AppError {
+  constructor(
+    message: string = 'Resource no longer available',
+    codeOrContext?: string | Record<string, unknown>,
+    context?: Record<string, unknown>,
+  ) {
+    const code = typeof codeOrContext === 'string' ? codeOrContext : 'GONE_ERROR';
+    const details = typeof codeOrContext === 'string' ? context : codeOrContext;
+    super(message, code, 410, details);
+    this.name = 'GoneError';
   }
 }
 
@@ -105,6 +127,22 @@ export class ExternalServiceError extends AppError {
   constructor(message: string = 'External service unavailable', context?: Record<string, unknown>) {
     super(message, 'EXTERNAL_SERVICE_ERROR', 503, context);
     this.name = 'ExternalServiceError';
+  }
+}
+
+/**
+ * Service unavailable error for dependency outages.
+ */
+export class ServiceUnavailableError extends AppError {
+  constructor(
+    message: string = 'Service unavailable',
+    codeOrContext?: string | Record<string, unknown>,
+    context?: Record<string, unknown>,
+  ) {
+    const code = typeof codeOrContext === 'string' ? codeOrContext : 'SERVICE_UNAVAILABLE';
+    const details = typeof codeOrContext === 'string' ? context : codeOrContext;
+    super(message, code, 503, details);
+    this.name = 'ServiceUnavailableError';
   }
 }
 

@@ -12,10 +12,12 @@ export {
   ConflictError,
   DatabaseError,
   ExternalServiceError,
+  GoneError,
   InventoryError,
   NotFoundError,
   RateLimitError,
   ReservationError,
+  ServiceUnavailableError,
   ValidationError,
 } from './app-error';
 

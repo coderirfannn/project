@@ -1,6 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { ValidationError } from '@/lib/errors';
-import { handleApiError } from '@/lib/errors';
+import { ValidationError, handleError } from '@/lib/errors';
 
 export function withRouteHandler<TContext = unknown>(
   handler: (request: NextRequest, context: TContext) => Promise<Response>,
@@ -9,13 +8,27 @@ export function withRouteHandler<TContext = unknown>(
     try {
       return await handler(request, context);
     } catch (error) {
-      return handleApiError(error);
+      return handleError(error, request);
     }
   };
 }
 
 export async function readJsonBody<T>(request: Request): Promise<T> {
-  return (await request.json()) as T;
+  try {
+    const body = await request.json();
+
+    if (body === null || typeof body !== 'object') {
+      throw new ValidationError('Request body must be a JSON object');
+    }
+
+    return body as T;
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new ValidationError('Request body must be valid JSON');
+    }
+
+    throw error;
+  }
 }
 
 export async function resolveRouteParamId(context: unknown): Promise<string> {

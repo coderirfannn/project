@@ -1,15 +1,76 @@
+import { loadEnvConfig } from '@next/env';
 import { connectToDatabase, disconnectFromDatabase } from '@/lib/mongodb';
+import type { Types } from 'mongoose';
 import { ProductModel } from '@/models/product.schema';
 import { WarehouseModel } from '@/models/warehouse.schema';
 import { InventoryModel } from '@/models/inventory.schema';
 import { logger } from '@/lib/logger';
+
+loadEnvConfig(process.cwd());
 
 type SeedOptions = {
   dryRun?: boolean;
   force?: boolean;
 };
 
-async function upsertProducts(products: Array<any>, options: SeedOptions = {}) {
+type SeedProduct = {
+  sku: string;
+  name: string;
+  description: string;
+  category: string;
+  brand: string | null;
+  currency: string;
+  priceCents: number;
+  barcode: string | null;
+  attributes: Record<string, unknown>;
+  isActive: boolean;
+};
+
+type SeedWarehouse = {
+  code: string;
+  name: string;
+  description: string | null;
+  address: {
+    line1: string;
+    line2: string | null;
+    city: string;
+    state: string | null;
+    postalCode: string;
+    country: string;
+  };
+  timezone: string;
+  capacityUnits: number;
+  isActive: boolean;
+};
+
+type SeedInventory = {
+  sku: string;
+  name: string;
+  description: string;
+  currency: string;
+  priceCents: number;
+  product: Types.ObjectId;
+  warehouse: Types.ObjectId;
+  totalUnits: number;
+  reservedUnits: number;
+  reorderPoint: number;
+  safetyStock: number;
+  isActive: boolean;
+};
+
+type SeedLookupRecord = {
+  _id: Types.ObjectId;
+  sku?: string;
+  code?: string;
+};
+
+function pickExistingByKey<T extends SeedLookupRecord>(items: T[]) {
+  return new Map(
+    items.map((item) => [item.sku ?? item.code ?? '', item]),
+  );
+}
+
+async function upsertProducts(products: SeedProduct[], options: SeedOptions = {}): Promise<Array<SeedLookupRecord & { sku: string }>> {
   const ops = products.map((p) => ({
     updateOne: {
       filter: { sku: p.sku },
@@ -24,10 +85,12 @@ async function upsertProducts(products: Array<any>, options: SeedOptions = {}) {
   }
 
   await ProductModel.bulkWrite(ops, { ordered: false });
-  return ProductModel.find({ sku: { $in: products.map((p) => p.sku) } }).lean();
+  return ProductModel.find({ sku: { $in: products.map((p) => p.sku) } }).select({ _id: 1, sku: 1 }).lean<
+    Array<SeedLookupRecord & { sku: string }>
+  >();
 }
 
-async function upsertWarehouses(warehouses: Array<any>, options: SeedOptions = {}) {
+async function upsertWarehouses(warehouses: SeedWarehouse[], options: SeedOptions = {}): Promise<Array<SeedLookupRecord & { code: string }>> {
   const ops = warehouses.map((w) => ({
     updateOne: {
       filter: { code: w.code },
@@ -42,10 +105,12 @@ async function upsertWarehouses(warehouses: Array<any>, options: SeedOptions = {
   }
 
   await WarehouseModel.bulkWrite(ops, { ordered: false });
-  return WarehouseModel.find({ code: { $in: warehouses.map((w) => w.code) } }).lean();
+  return WarehouseModel.find({ code: { $in: warehouses.map((w) => w.code) } }).select({ _id: 1, code: 1 }).lean<
+    Array<SeedLookupRecord & { code: string }>
+  >();
 }
 
-async function upsertInventories(inventories: Array<any>, options: SeedOptions = {}) {
+async function upsertInventories(inventories: SeedInventory[], options: SeedOptions = {}) {
   const ops = inventories.map((inv) => ({
     updateOne: {
       filter: { sku: inv.sku },
@@ -67,8 +132,6 @@ export async function seedAll(options: SeedOptions = {}) {
   if (process.env.NODE_ENV === 'production' && !options.force && process.env.SEED_FORCE !== 'true') {
     throw new Error('Refusing to run seed in production environment without --force or SEED_FORCE=true');
   }
-
-  await connectToDatabase();
 
   // Sample realistic ecommerce data
   const sampleWarehouses = [
@@ -122,7 +185,7 @@ export async function seedAll(options: SeedOptions = {}) {
     },
   ];
 
-  const sampleProducts = [
+  const sampleProducts: SeedProduct[] = [
     {
       sku: 'TS-1001',
       name: 'Trailblazer Running Shoes',
@@ -173,19 +236,28 @@ export async function seedAll(options: SeedOptions = {}) {
     },
   ];
 
+  if (options.dryRun) {
+    logger.info('Dry run - seed data prepared', {
+      products: sampleProducts.length,
+      warehouses: sampleWarehouses.length,
+      inventory: sampleProducts.length * sampleWarehouses.length,
+    });
+    return;
+  }
+
+  await connectToDatabase();
+
   // Upsert warehouses and products
   const createdWarehouses = await upsertWarehouses(sampleWarehouses, options);
   const createdProducts = await upsertProducts(sampleProducts, options);
 
   // Map for quick lookup
-  const warehouseMap = new Map<string, any>();
-  (createdWarehouses || []).forEach((w: any) => warehouseMap.set(w.code, w));
+  const warehouseMap = pickExistingByKey(createdWarehouses || []);
 
-  const productMap = new Map<string, any>();
-  (createdProducts || []).forEach((p: any) => productMap.set(p.sku, p));
+  const productMap = pickExistingByKey(createdProducts || []);
 
   // Build inventory entries combining products x warehouses
-  const inventoryEntries: Array<any> = [];
+  const inventoryEntries: SeedInventory[] = [];
 
   for (const p of sampleProducts) {
     for (const w of sampleWarehouses) {
