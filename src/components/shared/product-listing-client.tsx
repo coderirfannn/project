@@ -73,6 +73,7 @@ export function ProductListingClient() {
   const selectedProduct = availableProducts.find((product) => product.sku === selectedSku) ?? availableProducts[0] ?? null;
   const selectedInventory = selectedProduct ? inventoryBySku[selectedProduct.sku] ?? null : null;
   const activeError = error ?? reservationError;
+  const isBackendUnavailable = Boolean(error) && availableProducts.length === 0;
 
   const submitReservation = async () => {
     if (!selectedProduct) {
@@ -120,6 +121,17 @@ export function ProductListingClient() {
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Optimistic checkout</span>
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{warehouses.length} warehouses</span>
             </div>
+            {activeError ? (
+              <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-4">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-200">System status</p>
+                  <p className="text-sm text-slate-100">{activeError}</p>
+                </div>
+                <Button variant="outline" size="sm" className="border-white/15 bg-white/10 text-white hover:bg-white/15" onClick={() => void refetch()}>
+                  Retry sync
+                </Button>
+              </div>
+            ) : null}
           </div>
 
           <Card className="border-white/10 bg-white/7 text-white shadow-none backdrop-blur-xl">
@@ -188,20 +200,6 @@ export function ProductListingClient() {
         </div>
       </section>
 
-      {activeError ? (
-        <Alert variant="destructive" className="border-red-200 bg-red-50/90">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="font-semibold">Unable to load catalog</p>
-              <p className="text-sm opacity-90">{activeError}</p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => void refetch()}>
-              Retry
-            </Button>
-          </div>
-        </Alert>
-      ) : null}
-
       <section className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -210,7 +208,9 @@ export function ProductListingClient() {
               <h3 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">Featured products</h3>
               <p className="text-sm text-slate-500">Compare stock and reserve directly from the catalog.</p>
             </div>
-            <Badge variant="outline">{availableProducts.length} items</Badge>
+            <Badge variant={isBackendUnavailable ? 'warning' : 'outline'}>
+              {isBackendUnavailable ? 'Offline' : `${availableProducts.length} items`}
+            </Badge>
           </div>
 
           {!isLoading && !error && availableProducts.length === 0 ? (
@@ -352,7 +352,7 @@ export function ProductListingClient() {
                   </p>
                 </>
               ) : (
-                <div className="rounded-2xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/70 p-6 text-center text-sm text-slate-500">
                   Select a product to begin a reservation.
                 </div>
               )}
