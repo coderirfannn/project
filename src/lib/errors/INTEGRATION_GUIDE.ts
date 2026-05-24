@@ -529,7 +529,7 @@ Use the new error system to enhance existing hooks:
 - Add retryable logic based on error.retryable
 `;
 
-export default {
+const integrationGuide = {
   example1ApiRoute,
   example2ApiRoute,
   example3ApiRoute,
@@ -538,3 +538,5 @@ export default {
   example6Hook,
   migrationGuide,
 };
+
+export default integrationGuide;

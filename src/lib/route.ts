@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { ValidationError, handleError } from '@/lib/errors';
+import { NextResponse } from 'next/server';
 
 export function withRouteHandler<TContext = unknown>(
   handler: (request: NextRequest, context: TContext) => Promise<Response>,
@@ -29,6 +30,10 @@ export async function readJsonBody<T>(request: Request): Promise<T> {
 
     throw error;
   }
+}
+
+export function jsonDataResponse<T>(data: T, status = 200): NextResponse {
+  return NextResponse.json({ data }, { status });
 }
 
 export async function resolveRouteParamId(context: unknown): Promise<string> {

@@ -128,16 +128,16 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
   const releaseReservationId = releaseReservationMutation.variables?.reservationId;
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
-      <section className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-        <Card className="overflow-hidden border-slate-200/80 bg-white/90 backdrop-blur-xl">
+    <div className="space-y-8 animate-fade-in-up">
+      <section className="grid gap-6 lg:grid-cols-[1.12fr_0.88fr]">
+        <Card className="overflow-hidden border-slate-200/80 bg-white/92 backdrop-blur-xl">
           <CardHeader className="space-y-4 pb-0">
             <div className="flex items-center gap-2 text-emerald-700">
               <Sparkles className="h-4 w-4" />
-              <span className="text-xs font-semibold uppercase tracking-[0.28em]">Reservation engine</span>
+              <span className="section-eyebrow">Reservation engine</span>
             </div>
-            <div className="max-w-3xl space-y-3">
-              <CardTitle className="text-3xl sm:text-4xl">Concurrency-safe inventory reservations with MongoDB transactions.</CardTitle>
+            <div className="max-w-3xl space-y-4">
+              <CardTitle className="text-[2rem] sm:text-[2.75rem]">Concurrency-safe inventory reservations with MongoDB transactions.</CardTitle>
               <CardDescription className="text-base text-slate-600">
                 Reservations lock stock for 10 minutes. If payment succeeds, stock is committed. If payment fails or expires, inventory is restored atomically.
               </CardDescription>
@@ -153,7 +153,7 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200/80 bg-slate-950 text-white shadow-soft">
+        <Card className="surface-panel-dark text-white">
           <CardHeader className="pb-3">
             <CardTitle className="text-2xl text-white">Create reservation</CardTitle>
             <CardDescription className="text-slate-300">
@@ -279,9 +279,9 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
         </Alert>
       ) : null}
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section className="grid gap-5 lg:grid-cols-3">
         {dashboard.inventory.map((item) => (
-          <Card key={item.id} className="border-slate-200/80 bg-white/90 backdrop-blur-xl">
+          <Card key={item.id} className="overflow-hidden border-slate-200/80 bg-white/92 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_64px_rgba(15,23,42,0.12)]">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -300,7 +300,7 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
                 </div>
                 <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-slate-900"
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-slate-950"
                     style={{ width: `${Math.max(8, (item.availableQty / Math.max(1, item.totalQty)) * 100)}%` }}
                   />
                 </div>
@@ -340,8 +340,8 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
           </Button>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 shadow-soft backdrop-blur-xl">
-          <div className="grid grid-cols-12 gap-4 border-b border-slate-200 px-5 py-3 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+        <div className="overflow-hidden rounded-[1.6rem] border border-slate-200/80 bg-white/92 shadow-soft backdrop-blur-xl">
+          <div className="grid grid-cols-12 gap-4 border-b border-slate-200 px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
             <div className="col-span-12 sm:col-span-3">Reservation</div>
             <div className="col-span-12 sm:col-span-2">Customer</div>
             <div className="col-span-4 sm:col-span-2">Item</div>
@@ -354,7 +354,7 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
           <div className="divide-y divide-slate-100">
             {dashboard.reservations.length > 0 ? (
               dashboard.reservations.map((reservation) => (
-                <div key={reservation.id} className={`grid grid-cols-12 gap-4 px-5 py-4 text-sm ${reservationSummaryColor(reservation.status)}`}>
+                <div key={reservation.id} className={`grid grid-cols-12 gap-4 px-5 py-4 text-sm transition-colors ${reservationSummaryColor(reservation.status)}`}>
                   <div className="col-span-12 sm:col-span-3">
                     <div className="font-semibold text-slate-950">{reservation.reservationCode}</div>
                     <div className="mt-1 text-xs text-slate-500">Created {formatDateTime(reservation.createdAt)}</div>
@@ -401,7 +401,7 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
 
 function MetricCard({ icon, label, value, subtext }: { icon: ReactNode; label: string; value: string; subtext: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white px-4 py-4 shadow-sm">
+    <div className="rounded-[1.4rem] border border-slate-200/80 bg-white px-4 py-4 shadow-sm">
       <div className="flex items-center gap-2 text-sm text-slate-500">
         <span className="text-emerald-700">{icon}</span>
         {label}
@@ -414,7 +414,7 @@ function MetricCard({ icon, label, value, subtext }: { icon: ReactNode; label: s
 
 function StatCard({ label, value, description }: { label: string; value: string; description: string }) {
   return (
-    <Card className="border-slate-200/80 bg-white/90 backdrop-blur-xl">
+    <Card className="border-slate-200/80 bg-white/92 backdrop-blur-xl">
       <CardHeader className="pb-2">
         <CardDescription>{label}</CardDescription>
         <CardTitle className="text-3xl font-semibold text-slate-950">{value}</CardTitle>

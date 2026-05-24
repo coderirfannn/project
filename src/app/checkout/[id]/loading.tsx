@@ -3,11 +3,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Loading() {
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-      <Card>
+    <div className="grid gap-8 xl:grid-cols-[1.08fr_0.92fr]">
+      <Card className="overflow-hidden">
         <CardHeader>
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-10 w-3/4" />
+          <Skeleton className="h-4 w-40" />
+          <Skeleton className="h-11 w-3/4" />
           <Skeleton className="h-4 w-2/3" />
         </CardHeader>
         <CardContent className="space-y-4">
@@ -15,9 +15,9 @@ export default function Loading() {
           <Skeleton className="h-24 w-full" />
         </CardContent>
       </Card>
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader>
-          <Skeleton className="h-5 w-32" />
+          <Skeleton className="h-4 w-32" />
           <Skeleton className="h-4 w-44" />
         </CardHeader>
         <CardContent className="space-y-4">

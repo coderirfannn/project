@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LiveCountdown } from '@/components/shared/live-countdown';
 import type { ReservationDTO } from '@/lib/domain';
@@ -121,15 +122,15 @@ export function ReservationCheckoutClient({ reservationId }: { reservationId: st
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-      <section className="space-y-4">
-        <Card className="overflow-hidden border-slate-200/80 bg-white/95 backdrop-blur-xl">
+    <div className="grid gap-8 xl:grid-cols-[1.08fr_0.92fr]">
+      <section className="space-y-5">
+        <Card className="overflow-hidden border-slate-200/80 bg-white/92 backdrop-blur-xl">
           <CardHeader className="space-y-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-600">Reservation checkout</p>
-                <CardTitle className="mt-2 text-3xl">Review and complete your reservation</CardTitle>
-                <CardDescription className="mt-2 max-w-2xl text-base">
+                <p className="section-eyebrow text-emerald-600">Reservation checkout</p>
+                <CardTitle className="mt-2 text-[2rem] sm:text-[2.4rem]">Review and complete your reservation</CardTitle>
+                <CardDescription className="mt-3 max-w-2xl text-base">
                   Secure the stock, confirm payment, or cancel before the reservation expires.
                 </CardDescription>
               </div>
@@ -143,9 +144,9 @@ export function ReservationCheckoutClient({ reservationId }: { reservationId: st
               <SummaryChip label="Payment" value={reservation.paymentStatus} />
             </div>
 
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <div className="rounded-[1.6rem] border border-slate-200 bg-slate-50 p-5">
               <div className="flex items-center gap-3">
-                <div className="rounded-2xl bg-slate-950 p-3 text-white">
+                <div className="rounded-2xl bg-slate-950 p-3 text-white shadow-lg shadow-slate-950/20">
                   <ShoppingBag className="h-5 w-5" />
                 </div>
                 <div>
@@ -164,30 +165,37 @@ export function ReservationCheckoutClient({ reservationId }: { reservationId: st
           </CardContent>
         </Card>
 
-        <Alert variant={expired ? 'destructive' : 'default'}>
+        <Alert variant={expired ? 'destructive' : 'default'} className="shadow-none">
           {expired ? 'This reservation has expired. The stock will be released by the cleanup job if it has not already been released.' : 'Keep this page open while you complete payment or cancel the reservation.'}
         </Alert>
       </section>
 
       <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
-        <Card className="border-slate-200/80 bg-white/95 backdrop-blur-xl">
+        <Card className="border-slate-200/80 bg-white/92 backdrop-blur-xl">
           <CardHeader>
             <CardTitle>Actions</CardTitle>
             <CardDescription>Confirm or cancel the reservation. Actions are idempotent.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <p className="mb-2 text-sm font-medium text-slate-700">Payment reference</p>
+            {actionError ? <Alert variant="destructive">{actionError}</Alert> : null}
+            {reservationQuery.error && reservation ? <Alert variant="destructive">{toApiErrorMessage(reservationQuery.error, 'Unable to refresh reservation')}</Alert> : null}
+
+            <div className="space-y-2">
+              <Label htmlFor="payment-reference" className="text-slate-700">
+                Payment reference
+              </Label>
               <Input
+                id="payment-reference"
                 value={paymentReference}
                 onChange={(event) => setPaymentReference(event.target.value)}
                 disabled={!canAct}
                 placeholder="PAY-12345678"
+                aria-describedby="payment-reference-hint"
               />
+              <p id="payment-reference-hint" className="text-xs text-slate-500">
+                Use the payment processor reference or keep the generated value.
+              </p>
             </div>
-
-            {actionError ? <Alert variant="destructive">{actionError}</Alert> : null}
-            {reservationQuery.error && reservation ? <Alert variant="destructive">{toApiErrorMessage(reservationQuery.error, 'Unable to refresh reservation')}</Alert> : null}
 
             <Button className="w-full" size="lg" onClick={() => void handleAction('confirm')} disabled={!canAct || confirmPending || releasePending}>
               {confirmPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
@@ -205,7 +213,7 @@ export function ReservationCheckoutClient({ reservationId }: { reservationId: st
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200/80 bg-gradient-to-br from-slate-950 to-slate-900 text-white shadow-soft">
+        <Card className="surface-panel-dark text-white">
           <CardHeader>
             <CardTitle className="text-white">Timeline</CardTitle>
             <CardDescription className="text-slate-300">This reservation is tracked in real time.</CardDescription>

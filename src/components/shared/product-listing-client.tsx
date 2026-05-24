@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { InventoryItemDTO, ProductDTO } from '@/lib/domain';
 import { toApiErrorMessage, useCatalogData, useCreateReservationMutation } from '@/lib/react-query';
@@ -98,32 +99,30 @@ export function ProductListingClient() {
   };
 
   return (
-    <div className="space-y-6">
-      <section className="overflow-hidden rounded-3xl border border-white/70 bg-slate-950 text-white shadow-soft">
-        <div className="grid gap-6 px-6 py-8 lg:grid-cols-[1.2fr_0.8fr] lg:px-8 lg:py-10">
-          <div className="space-y-4">
-            <Badge variant="outline" className="border-white/20 bg-white/5 text-white">
+    <div className="space-y-8 animate-fade-in-up">
+      <section className="surface-panel-dark overflow-hidden rounded-[2rem] text-white">
+        <div className="grid gap-8 px-5 py-6 lg:grid-cols-[1.25fr_0.75fr] lg:px-8 lg:py-8">
+          <div className="space-y-5">
+            <Badge variant="outline" className="border-white/10 bg-white/8 text-white">
               <Sparkles className="mr-2 h-3.5 w-3.5" />
               Modern reservation flow
             </Badge>
-            <div className="space-y-3">
-              <h2 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
+            <div className="space-y-4">
+              <h2 className="max-w-2xl text-[2rem] font-semibold tracking-tight text-balance sm:text-[2.8rem] lg:text-[3.2rem]">
                 Reserve inventory instantly with a clean, responsive ecommerce catalog.
               </h2>
-              <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
+              <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-[0.98rem]">
                 Browse products, compare stock across warehouses, and reserve in one optimistic checkout flow.
               </p>
             </div>
-            <div className="flex flex-wrap gap-3 text-sm text-slate-300">
+            <div className="flex flex-wrap gap-2.5 text-sm text-slate-300">
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Responsive grid</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">TailwindCSS</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">shadcn/ui</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Optimistic UX</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">Optimistic checkout</span>
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5">{warehouses.length} warehouses</span>
             </div>
           </div>
 
-          <Card className="border-white/10 bg-white/5 text-white shadow-none backdrop-blur-xl">
+          <Card className="border-white/10 bg-white/7 text-white shadow-none backdrop-blur-xl">
             <CardHeader>
               <CardTitle className="text-white">Quick reserve</CardTitle>
               <CardDescription className="text-slate-300">Pick a product and lock stock in seconds.</CardDescription>
@@ -137,32 +136,47 @@ export function ProductListingClient() {
                 </p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <Input
-                  value={customerName}
-                  onChange={(event) => setCustomerName(event.target.value)}
-                  placeholder="Your name"
-                  className="border-white/10 bg-white/5 text-white placeholder:text-slate-400"
-                />
-                <Input
-                  type="email"
-                  value={customerEmail}
-                  onChange={(event) => setCustomerEmail(event.target.value)}
-                  placeholder="email@domain.com"
-                  className="border-white/10 bg-white/5 text-white placeholder:text-slate-400"
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="catalog-customer-name" className="text-slate-200">
+                    Customer name
+                  </Label>
+                  <Input
+                    id="catalog-customer-name"
+                    value={customerName}
+                    onChange={(event) => setCustomerName(event.target.value)}
+                    placeholder="Your name"
+                    className="border-white/10 bg-white/5 text-white placeholder:text-slate-400"
+                    autoComplete="name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="catalog-customer-email" className="text-slate-200">
+                    Email address
+                  </Label>
+                  <Input
+                    id="catalog-customer-email"
+                    type="email"
+                    value={customerEmail}
+                    onChange={(event) => setCustomerEmail(event.target.value)}
+                    placeholder="email@domain.com"
+                    className="border-white/10 bg-white/5 text-white placeholder:text-slate-400"
+                    autoComplete="email"
+                  />
+                </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <Input
+                  aria-label="Quantity"
                   type="number"
                   min={1}
                   value={quantity}
                   onChange={(event) => setQuantity(Number(event.target.value))}
-                  className="w-24 border-white/10 bg-white/5 text-white"
+                  className="w-full border-white/10 bg-white/5 text-white sm:w-28"
                 />
                 <Button
                   size="lg"
                   onClick={() => void submitReservation()}
-                  className="flex-1 bg-emerald-500 text-slate-950 hover:bg-emerald-400"
+                  className="flex-1 bg-emerald-500 text-slate-950 shadow-[0_16px_32px_rgba(16,185,129,0.22)] hover:bg-emerald-400"
                   disabled={!selectedProduct || createReservationMutation.isPending || !customerName.trim() || !customerEmail.trim()}
                 >
                   {createReservationMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
@@ -188,11 +202,12 @@ export function ProductListingClient() {
         </Alert>
       ) : null}
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="space-y-4">
-          <div className="flex items-end justify-between gap-4">
+      <section className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="space-y-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h3 className="text-2xl font-semibold tracking-tight text-slate-950">Featured products</h3>
+              <p className="section-eyebrow text-emerald-600">Catalog</p>
+              <h3 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">Featured products</h3>
               <p className="text-sm text-slate-500">Compare stock and reserve directly from the catalog.</p>
             </div>
             <Badge variant="outline">{availableProducts.length} items</Badge>
@@ -200,8 +215,8 @@ export function ProductListingClient() {
 
           {!isLoading && !error && availableProducts.length === 0 ? (
             <Card className="border-dashed border-slate-200 bg-white/80">
-              <CardContent className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-                <ShoppingBag className="h-8 w-8 text-slate-400" />
+              <CardContent className="flex flex-col items-center justify-center gap-4 py-18 text-center">
+                <ShoppingBag className="h-9 w-9 text-slate-400" />
                 <div className="space-y-1">
                   <h4 className="text-lg font-semibold text-slate-950">No products loaded yet</h4>
                   <p className="max-w-md text-sm text-slate-500">
@@ -213,7 +228,7 @@ export function ProductListingClient() {
           ) : isLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, index) => (
-                <Card key={index}>
+                <Card key={index} className="overflow-hidden">
                   <CardHeader>
                     <Skeleton className="h-5 w-24" />
                     <Skeleton className="h-4 w-40" />
@@ -236,7 +251,7 @@ export function ProductListingClient() {
                 return (
                   <Card
                     key={product.id}
-                    className={`group overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-lg ${selectedSku === product.sku ? 'ring-2 ring-emerald-500' : ''}`}
+                    className={`group overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)] ${selectedSku === product.sku ? 'ring-2 ring-emerald-500' : ''}`}
                   >
                     <CardHeader className="space-y-3">
                       <div className="flex items-start justify-between gap-3">

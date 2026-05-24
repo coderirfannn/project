@@ -14,13 +14,14 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
   }, [error]);
 
   return (
-    <Card className="mx-auto max-w-2xl border-slate-200/80 bg-white/95">
+    <Card className="mx-auto max-w-2xl overflow-hidden border-slate-200/80 bg-white/92 backdrop-blur-xl">
       <CardHeader>
-        <CardTitle>Checkout unavailable</CardTitle>
+        <p className="section-eyebrow text-emerald-600">Checkout error</p>
+        <CardTitle className="text-2xl">Checkout unavailable</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Alert variant="destructive">{error.message}</Alert>
-        <div className="flex gap-3">
+        <Alert variant="destructive" className="shadow-none">{error.message}</Alert>
+        <div className="flex flex-col gap-3 sm:flex-row">
           <Button onClick={reset}>Retry</Button>
           <Button variant="outline" onClick={() => router.push('/products')}>Back to products</Button>
         </div>

@@ -117,19 +117,22 @@ export const validationMessages = {
   match: (fieldName: string) => `${fieldName} does not match`,
 };
 
+type ValidationMessageRule = keyof typeof validationMessages;
+type ValidationMessageArgs = [fieldName: string, ...rest: unknown[]];
+
 /**
  * Get validation message for a specific field and rule.
  */
 export function getValidationMessage(
   fieldName: string,
-  rule: keyof typeof validationMessages,
-  ...args: any[]
+  rule: ValidationMessageRule,
+  ...args: ValidationMessageArgs
 ): string {
-  const messageFn = validationMessages[rule] as any;
+  const message = validationMessages[rule];
 
-  if (typeof messageFn === 'function') {
-    return messageFn(fieldName, ...args);
+  if (typeof message === 'function') {
+    return message(fieldName, ...(args.slice(1) as [number]));
   }
 
-  return messageFn;
+  return message;
 }
