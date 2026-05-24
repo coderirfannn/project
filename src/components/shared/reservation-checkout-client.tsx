@@ -74,26 +74,26 @@ export function ReservationCheckoutClient({ reservationId }: { reservationId: st
 
   if (reservationQuery.isLoading && !reservation) {
     return (
-      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card>
+      <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+        <Card className="surface-panel-dark text-white">
           <CardHeader>
-            <Skeleton className="h-6 w-40" />
-            <Skeleton className="h-4 w-64" />
+            <Skeleton className="h-5 w-40 bg-white/[0.08]" />
+            <Skeleton className="h-4 w-64 bg-white/[0.08]" />
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Skeleton className="h-28 w-full" />
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
+          <CardContent className="space-y-3">
+            <Skeleton className="h-24 w-full bg-white/[0.08]" />
+            <Skeleton className="h-10 w-full bg-white/[0.08]" />
+            <Skeleton className="h-10 w-full bg-white/[0.08]" />
           </CardContent>
         </Card>
-        <Card>
+        <Card className="surface-panel-dark text-white">
           <CardHeader>
-            <Skeleton className="h-6 w-32" />
-            <Skeleton className="h-4 w-48" />
+            <Skeleton className="h-5 w-32 bg-white/[0.08]" />
+            <Skeleton className="h-4 w-48 bg-white/[0.08]" />
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-12 w-full" />
+          <CardContent className="space-y-3">
+            <Skeleton className="h-20 w-full bg-white/[0.08]" />
+            <Skeleton className="h-10 w-full bg-white/[0.08]" />
           </CardContent>
         </Card>
       </div>
@@ -102,16 +102,24 @@ export function ReservationCheckoutClient({ reservationId }: { reservationId: st
 
   if ((reservationQuery.error && !reservation) || (!reservation && !reservationQuery.isLoading)) {
     return (
-      <Card className="mx-auto max-w-2xl border-slate-200/80 bg-white/95">
+      <Card className="surface-panel-dark mx-auto max-w-2xl text-white">
         <CardHeader>
-          <CardTitle>Checkout unavailable</CardTitle>
-          <CardDescription>We could not load this reservation.</CardDescription>
+          <p className="section-eyebrow text-slate-400">Checkout</p>
+          <CardTitle className="font-display text-[1.15rem] tracking-[-0.02em] text-white">Checkout unavailable</CardTitle>
+          <CardDescription className="text-slate-400">We could not load this reservation.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Alert variant="destructive">{toApiErrorMessage(reservationQuery.error, 'Unable to load reservation')}</Alert>
-          <Button variant="outline" onClick={() => void refreshReservation()}>
-            Retry
-          </Button>
+          <Alert variant="destructive" className="border-white/10 bg-red-500/10 text-red-200">
+            {toApiErrorMessage(reservationQuery.error, 'Unable to load reservation')}
+          </Alert>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button onClick={() => void refreshReservation()} className="bg-white text-slate-950 hover:bg-slate-100">
+              Retry
+            </Button>
+            <Button variant="outline" onClick={() => router.push('/products')}>
+              Back to catalog
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -122,40 +130,40 @@ export function ReservationCheckoutClient({ reservationId }: { reservationId: st
   }
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[1.08fr_0.92fr]">
-      <section className="space-y-5">
-        <Card className="overflow-hidden border-slate-200/80 bg-white/92 backdrop-blur-xl">
-          <CardHeader className="space-y-4">
+    <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+      <section className="space-y-4">
+        <Card className="surface-panel-dark text-white">
+          <CardHeader className="space-y-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="section-eyebrow text-emerald-600">Reservation checkout</p>
-                <CardTitle className="mt-2 text-[2rem] sm:text-[2.4rem]">Review and complete your reservation</CardTitle>
-                <CardDescription className="mt-3 max-w-2xl text-base">
-                  Secure the stock, confirm payment, or cancel before the reservation expires.
+                <p className="section-eyebrow text-slate-400">Reservation checkout</p>
+                <CardTitle className="font-display text-[1.35rem] tracking-[-0.03em] text-white sm:text-[1.6rem]">Review and complete reservation</CardTitle>
+                <CardDescription className="mt-1 max-w-2xl text-slate-400">
+                  Confirm payment, cancel the hold, or leave the reservation to expire.
                 </CardDescription>
               </div>
               <Badge variant={statusVariant(reservation.status)}>{reservation.status}</Badge>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <SummaryChip label="Reservation code" value={reservation.reservationCode} />
-              <SummaryChip label="Expires in" value={<LiveCountdown expiresAt={reservation.expiresAt} className="font-mono text-sm font-semibold text-slate-950" expiredLabel="Expired" />} />
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <SummaryChip label="Reservation" value={reservation.reservationCode} />
+              <SummaryChip label="Expires in" value={<LiveCountdown expiresAt={reservation.expiresAt} className="font-mono text-sm font-semibold text-white" expiredLabel="Expired" />} />
               <SummaryChip label="Payment" value={reservation.paymentStatus} />
             </div>
-
-            <div className="rounded-[1.6rem] border border-slate-200 bg-slate-50 p-5">
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] p-4">
               <div className="flex items-center gap-3">
-                <div className="rounded-2xl bg-slate-950 p-3 text-white shadow-lg shadow-slate-950/20">
-                  <ShoppingBag className="h-5 w-5" />
+                <div className="rounded-[0.85rem] border border-white/[0.08] bg-white/[0.04] p-2 text-white">
+                  <ShoppingBag className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Reserved item</p>
-                  <h3 className="text-xl font-semibold text-slate-950">{reservation.sku}</h3>
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Reserved item</p>
+                  <h3 className="mt-1 text-lg font-medium text-white">{reservation.sku}</h3>
                 </div>
               </div>
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <StatCard label="Customer" value={reservation.customerName} />
                 <StatCard label="Email" value={reservation.customerEmail} />
                 <StatCard label="Quantity" value={String(reservation.quantity)} />
@@ -165,23 +173,23 @@ export function ReservationCheckoutClient({ reservationId }: { reservationId: st
           </CardContent>
         </Card>
 
-        <Alert variant={expired ? 'destructive' : 'default'} className="shadow-none">
-          {expired ? 'This reservation has expired. The stock will be released by the cleanup job if it has not already been released.' : 'Keep this page open while you complete payment or cancel the reservation.'}
+        <Alert variant={expired ? 'destructive' : 'default'} className="border-white/10 bg-white/[0.04] text-slate-200">
+          {expired ? 'This reservation has expired. The cleanup job will release the stock if it has not already been processed.' : 'Keep this page open while payment is completed or the reservation is cancelled.'}
         </Alert>
       </section>
 
-      <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
-        <Card className="border-slate-200/80 bg-white/92 backdrop-blur-xl">
+      <aside className="space-y-4 xl:sticky xl:top-20 xl:self-start">
+        <Card className="surface-panel-dark text-white">
           <CardHeader>
-            <CardTitle>Actions</CardTitle>
-            <CardDescription>Confirm or cancel the reservation. Actions are idempotent.</CardDescription>
+            <CardTitle className="font-display text-[1.05rem] tracking-[-0.02em] text-white">Actions</CardTitle>
+            <CardDescription className="text-slate-400">Confirm or cancel the reservation. Actions are idempotent.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {actionError ? <Alert variant="destructive">{actionError}</Alert> : null}
             {reservationQuery.error && reservation ? <Alert variant="destructive">{toApiErrorMessage(reservationQuery.error, 'Unable to refresh reservation')}</Alert> : null}
 
             <div className="space-y-2">
-              <Label htmlFor="payment-reference" className="text-slate-700">
+              <Label htmlFor="payment-reference" className="text-slate-400">
                 Payment reference
               </Label>
               <Input
@@ -197,7 +205,7 @@ export function ReservationCheckoutClient({ reservationId }: { reservationId: st
               </p>
             </div>
 
-            <Button className="w-full" size="lg" onClick={() => void handleAction('confirm')} disabled={!canAct || confirmPending || releasePending}>
+            <Button className="w-full bg-white text-slate-950 hover:bg-slate-100" size="lg" onClick={() => void handleAction('confirm')} disabled={!canAct || confirmPending || releasePending}>
               {confirmPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}
               Confirm reservation
             </Button>
@@ -215,10 +223,10 @@ export function ReservationCheckoutClient({ reservationId }: { reservationId: st
 
         <Card className="surface-panel-dark text-white">
           <CardHeader>
-            <CardTitle className="text-white">Timeline</CardTitle>
-            <CardDescription className="text-slate-300">This reservation is tracked in real time.</CardDescription>
+            <CardTitle className="font-display text-[1.05rem] tracking-[-0.02em] text-white">Timeline</CardTitle>
+            <CardDescription className="text-slate-400">Reservation lifecycle in real time.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm text-slate-300">
+          <CardContent className="space-y-3 text-sm text-slate-300">
             <TimelineRow label="Created" value={formatDateTime(reservation.createdAt)} />
             <TimelineRow label="Expires" value={formatDateTime(reservation.expiresAt)} />
             <TimelineRow label="Confirmed" value={reservation.confirmedAt ? formatDateTime(reservation.confirmedAt) : 'Pending'} />
@@ -232,25 +240,25 @@ export function ReservationCheckoutClient({ reservationId }: { reservationId: st
 
 function SummaryChip({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-      <p className="text-xs uppercase tracking-[0.24em] text-slate-500">{label}</p>
-      <div className="mt-1 text-sm font-semibold text-slate-950">{value}</div>
+    <div className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-3">
+      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
+      <div className="mt-1 text-sm font-semibold text-white">{value}</div>
     </div>
   );
 }
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white px-3 py-3 text-sm">
-      <p className="text-xs uppercase tracking-[0.24em] text-slate-500">{label}</p>
-      <p className="mt-1 truncate font-semibold text-slate-950">{value}</p>
+    <div className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] px-3 py-3 text-sm">
+      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
+      <p className="mt-1 truncate font-medium text-white">{value}</p>
     </div>
   );
 }
 
 function TimelineRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-3 last:border-0 last:pb-0">
+    <div className="flex items-center justify-between gap-4 border-b border-white/[0.08] pb-3 last:border-0 last:pb-0">
       <span className="text-slate-400">{label}</span>
       <span className="text-right font-medium text-white">{value}</span>
     </div>

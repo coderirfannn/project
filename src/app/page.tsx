@@ -15,19 +15,19 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5 py-12">
-      <Card className="overflow-hidden border-slate-200/80 bg-white/92 backdrop-blur-xl">
+    <div className="mx-auto max-w-4xl py-6">
+      <Card className="surface-panel-dark mx-auto max-w-2xl text-white">
         <CardHeader>
-          <p className="section-eyebrow text-emerald-600">System status</p>
-          <CardTitle className="text-2xl sm:text-[2rem]">Dashboard unavailable</CardTitle>
-          <CardDescription className="max-w-2xl text-base leading-7">
+          <p className="section-eyebrow text-slate-400">System status</p>
+          <CardTitle className="font-display text-[1.35rem] tracking-[-0.03em] text-white sm:text-[1.7rem]">Dashboard unavailable</CardTitle>
+          <CardDescription className="max-w-2xl text-base leading-7 text-slate-400">
             The application cannot reach MongoDB Atlas or the required environment variables are missing.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Alert variant="destructive" className="shadow-none">Failed to load dashboard data from MongoDB.</Alert>
-          <div className="rounded-[1.4rem] border border-slate-200 bg-slate-50 p-4 text-sm leading-6 text-slate-600">
-            Check that <span className="font-mono text-slate-900">MONGODB_URI</span> is correct, that your Atlas network access allows this machine, and then refresh the page.
+          <Alert variant="destructive">Failed to load dashboard data from MongoDB.</Alert>
+          <div className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] p-4 text-sm leading-6 text-slate-400">
+            Check that <span className="font-mono text-white">MONGODB_URI</span> is correct, that your Atlas network access allows this machine, and then refresh the page.
           </div>
           <RetryButton />
         </CardContent>

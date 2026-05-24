@@ -109,7 +109,7 @@ export function ProductListingClient() {
               Modern reservation flow
             </Badge>
             <div className="space-y-4">
-              <h2 className="max-w-2xl text-[2rem] font-semibold tracking-tight text-balance sm:text-[2.8rem] lg:text-[3.2rem]">
+              <h2 className="font-display max-w-2xl text-[2.15rem] font-semibold tracking-[-0.03em] text-balance sm:text-[3rem] lg:text-[3.7rem]">
                 Reserve inventory instantly with a clean, responsive ecommerce catalog.
               </h2>
               <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-[0.98rem]">
@@ -124,7 +124,7 @@ export function ProductListingClient() {
             {activeError ? (
               <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-4">
                 <div className="space-y-1">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-200">System status</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-200">System status</p>
                   <p className="text-sm text-slate-100">{activeError}</p>
                 </div>
                 <Button variant="outline" size="sm" className="border-white/15 bg-white/10 text-white hover:bg-white/15" onClick={() => void refetch()}>
@@ -188,7 +188,7 @@ export function ProductListingClient() {
                 <Button
                   size="lg"
                   onClick={() => void submitReservation()}
-                  className="flex-1 bg-emerald-500 text-slate-950 shadow-[0_16px_32px_rgba(16,185,129,0.22)] hover:bg-emerald-400"
+                  className="flex-1 bg-amber-500 text-slate-950 shadow-[0_16px_32px_rgba(217,119,6,0.22)] hover:bg-amber-400"
                   disabled={!selectedProduct || createReservationMutation.isPending || !customerName.trim() || !customerEmail.trim()}
                 >
                   {createReservationMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRight className="mr-2 h-4 w-4" />}
@@ -204,8 +204,8 @@ export function ProductListingClient() {
         <div className="space-y-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="section-eyebrow text-emerald-600">Catalog</p>
-              <h3 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">Featured products</h3>
+              <p className="section-eyebrow text-amber-700">Catalog</p>
+              <h3 className="font-display mt-1 text-2xl font-semibold tracking-[-0.02em] text-slate-950">Featured products</h3>
               <p className="text-sm text-slate-500">Compare stock and reserve directly from the catalog.</p>
             </div>
             <Badge variant={isBackendUnavailable ? 'warning' : 'outline'}>
@@ -251,7 +251,7 @@ export function ProductListingClient() {
                 return (
                   <Card
                     key={product.id}
-                    className={`group overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)] ${selectedSku === product.sku ? 'ring-2 ring-emerald-500' : ''}`}
+                    className={`group overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)] ${selectedSku === product.sku ? 'ring-2 ring-amber-500' : ''}`}
                   >
                     <CardHeader className="space-y-3">
                       <div className="flex items-start justify-between gap-3">

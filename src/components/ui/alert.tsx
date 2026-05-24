@@ -2,11 +2,11 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const alertVariants = {
-  default: 'border-slate-200/80 bg-white/85 text-slate-900',
-  destructive: 'border-red-200 bg-red-50/95 text-red-900',
-  success: 'border-emerald-200 bg-emerald-50/95 text-emerald-900',
+  default: 'border-white/10 bg-white/[0.04] text-slate-200',
+  destructive: 'border-red-500/20 bg-red-500/10 text-red-200',
+  success: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-200',
 };
 
 export function Alert({ className, variant = 'default', ...props }: React.HTMLAttributes<HTMLDivElement> & { variant?: keyof typeof alertVariants }) {
-  return <div className={cn('rounded-[1.4rem] border px-4 py-4 text-sm shadow-sm backdrop-blur-sm', alertVariants[variant], className)} {...props} />;
+  return <div className={cn('rounded-[0.9rem] border px-3.5 py-3 text-sm shadow-sm backdrop-blur-sm', alertVariants[variant], className)} {...props} />;
 }

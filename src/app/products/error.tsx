@@ -14,13 +14,13 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
   }, [error]);
 
   return (
-    <Card className="mx-auto max-w-2xl overflow-hidden border-slate-200/80 bg-white/92 backdrop-blur-xl">
+    <Card className="surface-panel-dark mx-auto max-w-2xl text-white">
       <CardHeader>
-        <p className="section-eyebrow text-emerald-600">Catalog error</p>
-        <CardTitle className="text-2xl">Product catalog failed to load</CardTitle>
+        <p className="section-eyebrow text-slate-400">Catalog error</p>
+        <CardTitle className="font-display text-[1.15rem] tracking-[-0.02em] text-white">Product catalog failed to load</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Alert variant="destructive" className="shadow-none">{error.message}</Alert>
+        <Alert variant="destructive">{error.message}</Alert>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button onClick={reset}>Retry</Button>
           <Button variant="outline" onClick={() => router.push('/')}>Go home</Button>

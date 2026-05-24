@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { ReservationCountdown } from '@/components/dashboard/reservation-countdown';
 import type { DashboardDTO, ReservationDTO } from '@/lib/domain';
 import { toApiErrorMessage, useCreateReservationMutation, useDashboardQuery, useReservationActionMutation } from '@/lib/react-query';
@@ -41,11 +40,11 @@ function statusBadgeVariant(status: ReservationDTO['status']) {
 function reservationSummaryColor(status: ReservationDTO['status']) {
   switch (status) {
     case 'CONFIRMED':
-      return 'bg-emerald-50 text-emerald-900 border-emerald-200';
+      return 'bg-emerald-500/8';
     case 'RELEASED':
-      return 'bg-red-50 text-red-900 border-red-200';
+      return 'bg-red-500/8';
     default:
-      return 'bg-amber-50 text-amber-900 border-amber-200';
+      return 'bg-amber-500/8';
   }
 }
 
@@ -128,43 +127,50 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
   const releaseReservationId = releaseReservationMutation.variables?.reservationId;
 
   return (
-    <div className="space-y-8 animate-fade-in-up">
-      <section className="grid gap-6 lg:grid-cols-[1.12fr_0.88fr]">
-        <Card className="overflow-hidden border-slate-200/80 bg-white/92 backdrop-blur-xl">
-          <CardHeader className="space-y-4 pb-0">
-            <div className="flex items-center gap-2 text-emerald-700">
-              <Sparkles className="h-4 w-4" />
-              <span className="section-eyebrow">Reservation engine</span>
+    <div className="space-y-6 animate-fade-in-up">
+      <section className="grid gap-4 xl:grid-cols-[1.12fr_0.88fr]">
+        <Card className="surface-panel-dark text-white">
+          <CardHeader className="space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="section-eyebrow text-slate-400">Overview</p>
+                <CardTitle className="font-display text-[1.35rem] tracking-[-0.03em] text-white sm:text-[1.55rem]">Inventory reservation control</CardTitle>
+                <CardDescription className="max-w-2xl text-slate-400">
+                  Operational dashboard for atomic reservation, confirmation, and release flows.
+                </CardDescription>
+              </div>
+              <Badge variant="outline" className="border-white/10 bg-white/[0.04] text-slate-300">
+                {dashboardQuery.isFetching ? 'Syncing' : 'Live'}
+              </Badge>
             </div>
-            <div className="max-w-3xl space-y-4">
-              <CardTitle className="text-[2rem] sm:text-[2.75rem]">Concurrency-safe inventory reservations with MongoDB transactions.</CardTitle>
-              <CardDescription className="text-base text-slate-600">
-                Reservations lock stock for 10 minutes. If payment succeeds, stock is committed. If payment fails or expires, inventory is restored atomically.
-              </CardDescription>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <StatTile icon={<Package className="h-4 w-4" />} label="Available" value={String(totalAvailable)} />
+              <StatTile icon={<TimerReset className="h-4 w-4" />} label="Reserved" value={String(totalReserved)} />
+              <StatTile icon={<ShieldCheck className="h-4 w-4" />} label="Sold" value={String(totalSold)} />
+              <StatTile icon={<Clock3 className="h-4 w-4" />} label="Value" value={formatCurrency(dashboard.stats.inventoryValueCents)} />
             </div>
           </CardHeader>
-          <CardContent className="pt-6">
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <MetricCard icon={<Package className="h-4 w-4" />} label="Available units" value={String(totalAvailable)} subtext="Live inventory pool" />
-              <MetricCard icon={<TimerReset className="h-4 w-4" />} label="Reserved units" value={String(totalReserved)} subtext="Countdown active" />
-              <MetricCard icon={<ShieldCheck className="h-4 w-4" />} label="Committed units" value={String(totalSold)} subtext="Payment confirmed" />
-              <MetricCard icon={<Clock3 className="h-4 w-4" />} label="Inventory value" value={formatCurrency(dashboard.stats.inventoryValueCents)} subtext="Available stock at cost" />
+          <CardContent>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <MetricChip label="Active reservations" value={dashboard.stats.activeReservations} />
+              <MetricChip label="Confirmed reservations" value={dashboard.stats.confirmedReservations} />
+              <MetricChip label="Released reservations" value={dashboard.stats.releasedReservations} />
+              <MetricChip label="Refresh status" value={dashboardQuery.isFetching ? 1 : 0} valueLabel={dashboardQuery.isFetching ? 'Syncing' : 'Live'} />
             </div>
           </CardContent>
         </Card>
 
         <Card className="surface-panel-dark text-white">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-2xl text-white">Create reservation</CardTitle>
-            <CardDescription className="text-slate-300">
-              Reserve one or more units with atomic stock checks. The server rejects oversell attempts.
-            </CardDescription>
+          <CardHeader>
+            <CardTitle className="font-display text-[1.05rem] tracking-[-0.02em] text-white">Create reservation</CardTitle>
+            <CardDescription className="text-slate-400">Fast entry form for new stock holds.</CardDescription>
           </CardHeader>
           <CardContent>
             <form className="space-y-4" onSubmit={handleCreateReservation}>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label className="text-slate-200" htmlFor="customerName">
+                  <Label className="text-slate-400" htmlFor="customerName">
                     Customer name
                   </Label>
                   <Input
@@ -173,11 +179,10 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
                     onChange={(event) => setForm((current) => ({ ...current, customerName: event.target.value }))}
                     placeholder="Alex Carter"
                     required
-                    className="border-white/10 bg-white/5 text-white placeholder:text-slate-400"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-slate-200" htmlFor="customerEmail">
+                  <Label className="text-slate-400" htmlFor="customerEmail">
                     Email address
                   </Label>
                   <Input
@@ -187,14 +192,13 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
                     onChange={(event) => setForm((current) => ({ ...current, customerEmail: event.target.value }))}
                     placeholder="alex@company.com"
                     required
-                    className="border-white/10 bg-white/5 text-white placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-[1.15fr_0.7fr]">
                 <div className="space-y-2">
-                  <Label className="text-slate-200" htmlFor="sku">
+                  <Label className="text-slate-400" htmlFor="sku">
                     Inventory item
                   </Label>
                   <select
@@ -207,7 +211,7 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
                         quantity: 1,
                       }))
                     }
-                    className="flex h-10 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white shadow-sm outline-none ring-0 transition-colors focus:border-emerald-400"
+                    className="flex h-9 w-full rounded-[0.8rem] border border-white/10 bg-white/[0.04] px-3 text-sm text-slate-100 outline-none transition-colors focus:border-white/20"
                   >
                     {dashboard.inventory.map((item) => (
                       <option key={item.id} value={item.sku} className="text-slate-900">
@@ -217,7 +221,7 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-slate-200" htmlFor="quantity">
+                  <Label className="text-slate-400" htmlFor="quantity">
                     Quantity
                   </Label>
                   <Input
@@ -227,13 +231,12 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
                     max={selectedInventory?.availableQty ?? 1}
                     value={form.quantity}
                     onChange={(event) => setForm((current) => ({ ...current, quantity: Number(event.target.value) }))}
-                    className="border-white/10 bg-white/5 text-white placeholder:text-slate-400"
                     required
                   />
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
+              <div className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.03] p-3 text-sm text-slate-300">
                 {selectedInventory ? (
                   <div className="space-y-1">
                     <p className="font-medium text-white">{selectedInventory.name}</p>
@@ -246,7 +249,7 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
                 )}
               </div>
 
-              <Button type="submit" size="lg" className="w-full bg-emerald-500 text-slate-950 hover:bg-emerald-400" disabled={createReservationMutation.isPending || !dashboard.inventory.length}>
+              <Button type="submit" size="lg" className="w-full bg-white text-slate-950 hover:bg-slate-100" disabled={createReservationMutation.isPending || !dashboard.inventory.length}>
                 {createReservationMutation.isPending ? 'Reserving stock...' : 'Reserve inventory'}
               </Button>
             </form>
@@ -254,15 +257,8 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
         </Card>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Active reservations" value={String(dashboard.stats.activeReservations)} description="Pending release countdowns" />
-        <StatCard label="Confirmed reservations" value={String(dashboard.stats.confirmedReservations)} description="Committed after payment" />
-        <StatCard label="Released reservations" value={String(dashboard.stats.releasedReservations)} description="Expired or payment failed" />
-        <StatCard label="Refresh status" value={dashboardQuery.isFetching ? 'Syncing' : 'Live'} description="Auto-refreshes every 15 seconds" />
-      </section>
-
       {dashboardQuery.error ? (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="border-white/10 bg-red-500/10 text-red-200">
           <div className="flex items-start gap-2">
             <TriangleAlert className="mt-0.5 h-4 w-4" />
             <p>{toApiErrorMessage(dashboardQuery.error, 'Unable to refresh dashboard right now.')}</p>
@@ -279,149 +275,132 @@ export function InventoryReservationDashboard({ initialDashboard }: { initialDas
         </Alert>
       ) : null}
 
-      <section className="grid gap-5 lg:grid-cols-3">
-        {dashboard.inventory.map((item) => (
-          <Card key={item.id} className="overflow-hidden border-slate-200/80 bg-white/92 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_64px_rgba(15,23,42,0.12)]">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <CardTitle>{item.name}</CardTitle>
-                  <CardDescription>{item.sku}</CardDescription>
-                </div>
-                <Badge variant={item.availableQty > 0 ? 'success' : 'destructive'}>{item.availableQty > 0 ? 'In stock' : 'Empty'}</Badge>
+      <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+        <Card className="surface-panel-dark text-white">
+          <CardHeader>
+            <CardTitle className="font-display text-[1.05rem] tracking-[-0.02em] text-white">Inventory</CardTitle>
+            <CardDescription className="text-slate-400">Compact stock view with unit economics and utilization.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-hidden rounded-[0.95rem] border border-white/[0.08]">
+              <div className="grid grid-cols-[minmax(0,1.65fr)_0.55fr_0.55fr_0.65fr] gap-3 border-b border-white/[0.08] bg-white/[0.02] px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                <div>Item</div>
+                <div>Avail.</div>
+                <div>Res.</div>
+                <div>Price</div>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-slate-600">{item.description}</p>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500">Available</span>
-                  <span className="font-semibold text-slate-900">{item.availableQty}</span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-slate-950"
-                    style={{ width: `${Math.max(8, (item.availableQty / Math.max(1, item.totalQty)) * 100)}%` }}
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-2 text-xs text-slate-500">
-                  <div className="rounded-xl bg-slate-50 p-2 text-center">
-                    <div className="font-semibold text-slate-900">{item.totalQty}</div>
-                    Total
+
+              <div className="divide-y divide-white/[0.06]">
+                {dashboard.inventory.map((item) => (
+                  <div key={item.id} className={`grid grid-cols-[minmax(0,1.65fr)_0.55fr_0.55fr_0.65fr] gap-3 px-4 py-3 text-sm ${reservationSummaryColor(item.availableQty > 0 ? 'PENDING' : 'RELEASED')}`}>
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-white">{item.name}</p>
+                      <p className="mt-1 truncate text-xs text-slate-500">SKU {item.sku}</p>
+                    </div>
+                    <div className="font-mono text-white">{item.availableQty}</div>
+                    <div className="font-mono text-slate-300">{item.reservedQty}</div>
+                    <div className="font-medium text-white">{formatCurrency(item.priceCents, item.currency)}</div>
+                    <div className="col-span-4 -mt-1">
+                      <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                        <div className="h-full rounded-full bg-white" style={{ width: `${Math.max(8, (item.availableQty / Math.max(1, item.totalQty)) * 100)}%` }} />
+                      </div>
+                    </div>
                   </div>
-                  <div className="rounded-xl bg-slate-50 p-2 text-center">
-                    <div className="font-semibold text-slate-900">{item.reservedQty}</div>
-                    Reserved
-                  </div>
-                  <div className="rounded-xl bg-slate-50 p-2 text-center">
-                    <div className="font-semibold text-slate-900">{item.soldQty}</div>
-                    Sold
-                  </div>
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500">Unit price</span>
-                  <span className="font-semibold text-slate-900">{formatCurrency(item.priceCents, item.currency)}</span>
-                </div>
+                ))}
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </section>
+            </div>
+          </CardContent>
+        </Card>
 
-      <section className="space-y-4">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-950">Reservations</h2>
-            <p className="text-sm text-slate-600">Live queue with countdown and payment actions.</p>
-          </div>
-          <Button variant="outline" onClick={() => void refreshDashboard()} disabled={dashboardQuery.isFetching}>
-            {dashboardQuery.isFetching ? 'Refreshing...' : 'Refresh now'}
-          </Button>
-        </div>
-
-        <div className="overflow-hidden rounded-[1.6rem] border border-slate-200/80 bg-white/92 shadow-soft backdrop-blur-xl">
-          <div className="grid grid-cols-12 gap-4 border-b border-slate-200 px-5 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-            <div className="col-span-12 sm:col-span-3">Reservation</div>
-            <div className="col-span-12 sm:col-span-2">Customer</div>
-            <div className="col-span-4 sm:col-span-2">Item</div>
-            <div className="col-span-4 sm:col-span-1">Qty</div>
-            <div className="col-span-4 sm:col-span-1">Status</div>
-            <div className="col-span-6 sm:col-span-1">Expires</div>
-            <div className="col-span-6 sm:col-span-2 text-right">Actions</div>
-          </div>
-
-          <div className="divide-y divide-slate-100">
-            {dashboard.reservations.length > 0 ? (
-              dashboard.reservations.map((reservation) => (
-                <div key={reservation.id} className={`grid grid-cols-12 gap-4 px-5 py-4 text-sm transition-colors ${reservationSummaryColor(reservation.status)}`}>
-                  <div className="col-span-12 sm:col-span-3">
-                    <div className="font-semibold text-slate-950">{reservation.reservationCode}</div>
-                    <div className="mt-1 text-xs text-slate-500">Created {formatDateTime(reservation.createdAt)}</div>
-                  </div>
-                  <div className="col-span-12 sm:col-span-2">
-                    <div className="font-medium text-slate-900">{reservation.customerName}</div>
-                    <div className="text-xs text-slate-500">{reservation.customerEmail}</div>
-                  </div>
-                  <div className="col-span-4 sm:col-span-2 font-medium text-slate-900">{reservation.sku}</div>
-                  <div className="col-span-4 sm:col-span-1 font-mono text-slate-900">{reservation.quantity}</div>
-                  <div className="col-span-4 sm:col-span-1">
-                    <Badge variant={statusBadgeVariant(reservation.status)}>{reservation.status}</Badge>
-                  </div>
-                  <div className="col-span-6 sm:col-span-1 font-mono text-slate-900">
-                    <ReservationCountdown expiresAt={reservation.expiresAt} status={reservation.status} />
-                  </div>
-                  <div className="col-span-6 flex items-center justify-end gap-2 sm:col-span-2">
-                    {reservation.status === 'PENDING' ? (
-                      <>
-                        <Button size="sm" variant="outline" onClick={() => void handleReservationAction(reservation.id, 'confirm')} disabled={confirmReservationId === reservation.id && confirmReservationMutation.isPending}>
-                          Confirm
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => void handleReservationAction(reservation.id, 'release')} disabled={releaseReservationId === reservation.id && releaseReservationMutation.isPending}>
-                          Release
-                        </Button>
-                      </>
-                    ) : (
-                      <span className="text-xs text-slate-500">{reservation.status === 'CONFIRMED' ? 'Committed' : `Released ${reservation.releaseReason ?? 'manually'}`}</span>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="px-5 py-10 text-center text-sm text-slate-500">
-                No reservations yet. Create one from the form to exercise the workflow.
+        <Card className="surface-panel-dark text-white">
+          <CardHeader>
+            <CardTitle className="font-display text-[1.05rem] tracking-[-0.02em] text-white">Reservations</CardTitle>
+            <CardDescription className="text-slate-400">Live queue with confirm and release actions.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-hidden rounded-[0.95rem] border border-white/[0.08]">
+              <div className="grid grid-cols-[minmax(0,1.4fr)_0.95fr_0.5fr_0.55fr_0.85fr] gap-3 border-b border-white/[0.08] bg-white/[0.02] px-4 py-3 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                <div>Reservation</div>
+                <div>Customer</div>
+                <div>Qty</div>
+                <div>Status</div>
+                <div className="text-right">Actions</div>
               </div>
-            )}
-          </div>
-        </div>
+
+              <div className="divide-y divide-white/[0.06]">
+                {dashboard.reservations.length > 0 ? (
+                  dashboard.reservations.map((reservation) => (
+                    <div key={reservation.id} className={`grid grid-cols-[minmax(0,1.4fr)_0.95fr_0.5fr_0.55fr_0.85fr] gap-3 px-4 py-3 text-sm ${reservationSummaryColor(reservation.status)}`}>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-white">{reservation.reservationCode}</p>
+                        <p className="mt-1 text-xs text-slate-500">{formatDateTime(reservation.createdAt)}</p>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-white">{reservation.customerName}</p>
+                        <p className="mt-1 truncate text-xs text-slate-500">{reservation.customerEmail}</p>
+                      </div>
+                      <div className="font-mono text-white">{reservation.quantity}</div>
+                      <div>
+                        <Badge variant={statusBadgeVariant(reservation.status)}>{reservation.status}</Badge>
+                      </div>
+                      <div className="flex items-center justify-end gap-2">
+                        {reservation.status === 'PENDING' ? (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => void handleReservationAction(reservation.id, 'confirm')}
+                              disabled={confirmReservationId === reservation.id && confirmReservationMutation.isPending}
+                            >
+                              Confirm
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => void handleReservationAction(reservation.id, 'release')}
+                              disabled={releaseReservationId === reservation.id && releaseReservationMutation.isPending}
+                            >
+                              Release
+                            </Button>
+                          </>
+                        ) : (
+                          <span className="text-xs text-slate-500">{reservation.status === 'CONFIRMED' ? 'Committed' : `Released ${reservation.releaseReason ?? 'manually'}`}</span>
+                        )}
+                      </div>
+                      <div className="col-span-5 -mt-1 flex items-center justify-end font-mono text-xs text-slate-400">
+                        <ReservationCountdown expiresAt={reservation.expiresAt} status={reservation.status} />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-4 py-10 text-center text-sm text-slate-400">No reservations yet. Create one from the form to exercise the workflow.</div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </section>
     </div>
   );
 }
 
-function MetricCard({ icon, label, value, subtext }: { icon: ReactNode; label: string; value: string; subtext: string }) {
+function StatTile({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-[1.4rem] border border-slate-200/80 bg-white px-4 py-4 shadow-sm">
-      <div className="flex items-center gap-2 text-sm text-slate-500">
-        <span className="text-emerald-700">{icon}</span>
-        {label}
+    <div className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.04] px-3 py-3">
+      <div className="flex items-center justify-between gap-3 text-sm text-slate-400">
+        <span>{label}</span>
+        <span>{icon}</span>
       </div>
-      <div className="mt-2 font-mono text-2xl font-semibold text-slate-950">{value}</div>
-      <p className="mt-1 text-xs text-slate-500">{subtext}</p>
+      <div className="mt-2 font-mono text-xl font-semibold text-white">{value}</div>
     </div>
   );
 }
 
-function StatCard({ label, value, description }: { label: string; value: string; description: string }) {
+function MetricChip({ label, value, valueLabel }: { label: string; value: number; valueLabel?: string }) {
   return (
-    <Card className="border-slate-200/80 bg-white/92 backdrop-blur-xl">
-      <CardHeader className="pb-2">
-        <CardDescription>{label}</CardDescription>
-        <CardTitle className="text-3xl font-semibold text-slate-950">{value}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-slate-600">{description}</p>
-      </CardContent>
-    </Card>
+    <div className="rounded-[0.95rem] border border-white/[0.08] bg-white/[0.04] px-3 py-3">
+      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</p>
+      <p className="mt-1 font-mono text-lg font-semibold text-white">{valueLabel ?? value}</p>
+    </div>
   );
 }
