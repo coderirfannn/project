@@ -61,6 +61,7 @@ export async function seedInventoryItems(items: Array<{
   priceCents: number;
   totalQty: number;
   availableQty?: number;
+  warehouseId?: string;
 }>): Promise<void> {
   await InventoryModel.deleteMany({});
   await InventoryModel.insertMany(
@@ -71,7 +72,7 @@ export async function seedInventoryItems(items: Array<{
       currency: item.currency,
       priceCents: item.priceCents,
       product: new InventoryModel.base.Types.ObjectId(),
-      warehouse: new InventoryModel.base.Types.ObjectId(),
+      warehouse: item.warehouseId ? new InventoryModel.base.Types.ObjectId(item.warehouseId) : new InventoryModel.base.Types.ObjectId(),
       totalUnits: item.totalQty,
       reservedUnits: 0,
       reorderPoint: 0,

@@ -240,7 +240,7 @@ export async function seedAll(options: SeedOptions = {}) {
     logger.info('Dry run - seed data prepared', {
       products: sampleProducts.length,
       warehouses: sampleWarehouses.length,
-      inventory: sampleProducts.length * sampleWarehouses.length,
+      inventory: sampleProducts.length,
     });
     return;
   }
@@ -256,38 +256,37 @@ export async function seedAll(options: SeedOptions = {}) {
 
   const productMap = pickExistingByKey(createdProducts || []);
 
-  // Build inventory entries combining products x warehouses
+  // Build one inventory record per product SKU so reservation and catalog flows
+  // can resolve the same identifier end to end.
   const inventoryEntries: SeedInventory[] = [];
 
-  for (const p of sampleProducts) {
-    for (const w of sampleWarehouses) {
-      const productDoc = productMap.get(p.sku);
-      const warehouseDoc = warehouseMap.get(w.code);
-      if (!productDoc || !warehouseDoc) continue;
+  for (const [index, p] of sampleProducts.entries()) {
+    const productDoc = productMap.get(p.sku);
+    if (!productDoc) continue;
 
-      const sku = `${p.sku}-${w.code}`;
+    const warehouseDoc = warehouseMap.get(sampleWarehouses[index % sampleWarehouses.length].code);
+    if (!warehouseDoc) continue;
 
-      // realistic stock numbers
-      const totalUnits = Math.floor(20 + Math.random() * 180);
-      const reservedUnits = Math.floor(Math.random() * 5);
-      const reorderPoint = Math.floor(totalUnits * 0.2);
-      const safetyStock = Math.max(2, Math.floor(totalUnits * 0.05));
+    // realistic stock numbers
+    const totalUnits = Math.floor(20 + Math.random() * 180);
+    const reservedUnits = Math.floor(Math.random() * 5);
+    const reorderPoint = Math.floor(totalUnits * 0.2);
+    const safetyStock = Math.max(2, Math.floor(totalUnits * 0.05));
 
-      inventoryEntries.push({
-        sku,
-        name: p.name,
-        description: p.description,
-        currency: p.currency,
-        priceCents: p.priceCents,
-        product: productDoc._id,
-        warehouse: warehouseDoc._id,
-        totalUnits,
-        reservedUnits,
-        reorderPoint,
-        safetyStock,
-        isActive: true,
-      });
-    }
+    inventoryEntries.push({
+      sku: p.sku,
+      name: p.name,
+      description: p.description,
+      currency: p.currency,
+      priceCents: p.priceCents,
+      product: productDoc._id,
+      warehouse: warehouseDoc._id,
+      totalUnits,
+      reservedUnits,
+      reorderPoint,
+      safetyStock,
+      isActive: true,
+    });
   }
 
   await upsertInventories(inventoryEntries, options);
